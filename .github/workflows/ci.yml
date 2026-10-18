@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+
+      - name: 检查发布文件隐私
+        shell: pwsh
+        run: ./scripts/Check-Privacy.ps1
+
+      - name: 测试 Core
+        run: dotnet test tests/OtpClipboard.Core.Tests -c Release
+
+      - name: 构建应用（x64）
+        run: dotnet build src/OtpClipboard/OtpClipboard.csproj -c Release -p:Platform=x64

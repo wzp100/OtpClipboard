@@ -1,0 +1,81 @@
+## .NET / Visual Studio
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+artifacts/
+
+# Build logs
+[Ll]og/
+[Ll]ogs/
+*.log
+*.binlog
+
+# Test results
+[Tt]est[Rr]esult*/
+*.trx
+*.coverage
+*.coveragexml
+
+# NuGet
+*.nupkg
+*.snupkg
+*.nuget.props
+*.nuget.targets
+project.lock.json
+
+# MSIX packaging output
+AppPackages/
+BundleArtifacts/
+*.msix
+*.msixupload
+*.appx
+*.appxbundle
+*.appxupload
+
+# Publish output
+publish/
+*.pubxml
+!**/Properties/PublishProfiles/*.pubxml
+PublishScripts/
+
+# 本地打包产物（安装包不纳入 Git，发布到 Releases）
+dist/
+
+# 开发脚本的输出
+/popup*.png
+__pycache__/
+
+# Code analysis and tooling
+_ReSharper*/
+*.DotSettings.user
+*.dotCover
+.idea/
+
+# Generated files
+Generated\ Files/
+*_wpftmp.csproj
+
+# 敏感文件：签名私钥、密钥和本地环境配置不得提交（公钥证书 *.cer 可以提交）
+*.pfx
+*.p12
+*.snk
+*.key
+*.pem
+.env
+.env.*
+
+# 本机截图可能含短信、验证码和桌面隐私；只提交审核过的 docs/media 素材。
+/output/
+/.local/
+notification-history.json
+notification-history.json.*.tmp
+preferences.json
+preferences.json.*.tmp
+*.dmp
+*.dump

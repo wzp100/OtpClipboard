@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "OtpClipboard (Package)": {
+      "commandName": "MsixPackage",
+      "nativeDebugging": false
+    }
+  }
+}

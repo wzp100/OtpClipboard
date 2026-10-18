@@ -1,0 +1,34 @@
+name: 问题报告
+description: 验证码没有被识别、复制失败、界面异常等
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **请勿贴出真实的验证码、短信全文、手机号或账号信息。** 举例时请把数字换成虚构值。
+        安全漏洞请按 SECURITY.md 私下报告，不要在这里提交。
+  - type: input
+    id: version
+    attributes:
+      label: 应用版本
+      placeholder: 例如 1.0.3.0（设置 → 应用 → 验证码剪贴板 → 高级选项）
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows 版本
+      placeholder: 例如 Windows 11 24H2（运行 winver 查看）
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤与实际结果
+      description: 处理记录里对应条目的状态（已复制 / 未匹配 / 已过滤 / 失败）和详情也请一并附上。
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望结果

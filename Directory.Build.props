@@ -1,0 +1,13 @@
+<Project>
+  <!-- 仓库内所有项目共用的设置。项目特有的设置写在各自的 .csproj 里。 -->
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Deterministic>true</Deterministic>
+
+    <Product>验证码剪贴板</Product>
+    <Authors>OtpClipboard contributors</Authors>
+    <Copyright>Copyright (c) 2026 OtpClipboard contributors</Copyright>
+  </PropertyGroup>
+</Project>

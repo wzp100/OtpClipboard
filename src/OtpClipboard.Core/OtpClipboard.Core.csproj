@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- 与 WinUI 无关的纯逻辑：验证码提取、通知来源判断、错误描述。可在任何平台上测试。 -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>OtpClipboard.Core</RootNamespace>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+</Project>
