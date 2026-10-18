@@ -63,6 +63,11 @@ if ($LASTEXITCODE -ne 0) { throw "签名失败，退出码：$LASTEXITCODE" }
 # 组装安装包目录：既是 exe 的输入，也可单独分发（双击“安装.cmd”安装）。
 $distRoot = Join-Path $projectRoot 'dist'
 $stageDir = Join-Path $distRoot "OtpClipboard-$version-Installer"
+$stageDir = [System.IO.Path]::GetFullPath($stageDir)
+$distPrefix = [System.IO.Path]::GetFullPath($distRoot).TrimEnd('\', '/') + [System.IO.Path]::DirectorySeparatorChar
+if (-not $stageDir.StartsWith($distPrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
+    throw '安装包暂存目录超出 dist，拒绝清理。'
+}
 if (Test-Path -LiteralPath $stageDir) { Remove-Item -LiteralPath $stageDir -Recurse -Force }
 New-Item -ItemType Directory -Force -Path $stageDir | Out-Null
 

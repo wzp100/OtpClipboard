@@ -5,6 +5,9 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <Deterministic>true</Deterministic>
+    <!-- Release 不嵌入本机源码路径或调试信息；Debug 保留正常断点调试。 -->
+    <PathMap Condition="'$(Configuration)' == 'Release'">$(MSBuildThisFileDirectory)=/_/</PathMap>
+    <DebugType Condition="'$(Configuration)' == 'Release'">none</DebugType>
 
     <Product>验证码剪贴板</Product>
     <Authors>OtpClipboard contributors</Authors>

@@ -59,7 +59,7 @@ flowchart LR
 
 ### 2. 安装或从源码运行
 
-前往 [Releases](https://github.com/wzp100/OtpClipboard/releases) 查看可用安装包；**如果尚无版本，请按下方源码方式运行**。本仓库的初始化发布不代表已经提供新的安装包。
+下载 [v1.0.4 Windows x64 安装程序](https://github.com/wzp100/OtpClipboard/releases/download/v1.0.4/OtpClipboard-1.0.4.0-Setup.exe)，或前往 [Releases](https://github.com/wzp100/OtpClipboard/releases) 查看更新日志和 SHA-256 校验文件。其他架构请参考源码与打包说明。
 
 安装包名称为 `OtpClipboard-<版本>-Setup.exe`。当前打包方案采用自签名证书，安装时需管理员权限导入到“本地计算机 → 受信任人”。Windows 可能显示未知发布者提示；请先核实来源。详细步骤见 [打包与安装说明](docs/packaging.md)。
 
