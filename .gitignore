@@ -50,6 +50,7 @@ dist/
 # 开发脚本的输出
 /popup*.png
 __pycache__/
+/tmp/
 
 # Code analysis and tooling
 _ReSharper*/

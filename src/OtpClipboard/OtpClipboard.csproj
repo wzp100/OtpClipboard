@@ -11,6 +11,13 @@
     <PublishProfile Condition="Exists('$(MSBuildProjectDirectory)\Properties\PublishProfiles\$(RuntimeIdentifier).pubxml')">$(RuntimeIdentifier).pubxml</PublishProfile>
     <UseWinUI>true</UseWinUI>
     <WinUISDKReferences>false</WinUISDKReferences>
+    <!-- App.xaml.cs 提供进程入口；后台模式下直接运行原生消息泵。 -->
+    <DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
+    <!-- 打包应用由 Windows App SDK 自动完成启动；后台进程不会创建 WinUI 控件。 -->
+    <WindowsAppSdkBootstrapInitialize>true</WindowsAppSdkBootstrapInitialize>
+    <WindowsAppSDKBootstrapAutoInitializeOptions_OnPackageIdentity_NoOp>true</WindowsAppSDKBootstrapAutoInitializeOptions_OnPackageIdentity_NoOp>
+    <WindowsAppSdkDeploymentManagerInitialize>false</WindowsAppSdkDeploymentManagerInitialize>
+    <WindowsAppSdkUndockedRegFreeWinRTInitialize>false</WindowsAppSdkUndockedRegFreeWinRTInitialize>
     <EnableMsixTooling>true</EnableMsixTooling>
     <ApplicationIcon>Assets\AppIcon.ico</ApplicationIcon>
     <DefaultItemExcludes>$(DefaultItemExcludes);**\bin\**;**\obj\**</DefaultItemExcludes>

@@ -14,3 +14,11 @@ Use case: infographic-diagram. Asset type: 小红书竖版第二张说明配图�
 ### 说明图修订提示词
 
 仅将第三列“不加入 Windows 剪贴板历史与同步”用于准确表达单次写入选项，保持其余布局与虚构演示信息。最终文件为 `docs/media/xiaohongshu-guide-v2.png`。
+
+## v1.0.5 说明图
+
+Use case: infographic-diagram. Asset type: 小红书竖版第二张说明配图，2:3 比例。Primary request: 为真实开源项目“验证码剪贴板 OtpClipboard”制作 v1.0.5 更新说明图。Scene/background: 温暖奶油白纸张质感，顶部和底部留足留白，电光蓝与薄荷绿作为强调色。Subject: 中间用四个清晰卡片表达主要变化：“关闭界面，后台继续监听”“识别本机完成，不联网”“验证码不写入应用历史”“再次打开，界面按需启动”。顶部文案只能是“v1.0.5 更轻一点”；副标题只能是“验证码剪贴板 · OtpClipboard”。Use small abstract Windows laptop, tray icon, notification bell and clipboard illustrations, not photorealistic device brand logos. Bottom exact text: “示例验证码 246810 · 虚构演示” and “需手机连接配对并授权通知访问；特殊输入框可手动 Ctrl + V”。Style/medium: clean premium Chinese editorial infographic, precise information hierarchy, crisp Chinese typography, legible at phone screen size. Constraints: render all Chinese and English text verbatim; no additional claims; no authentication marks; no download counts; no performance guarantee; no watermark; no real SMS; no personal data; no real app screenshot; avoid tacky neon, oversaturation and clutter. Final file is `docs/media/xiaohongshu-guide-v3.png`.
+
+## 生成状态
+
+最终配图必须逐张检查文字准确性、虚构示例和隐私内容。若本机没有 `OPENAI_API_KEY`，不得跳过校验或把未审阅的图片当作发布素材。

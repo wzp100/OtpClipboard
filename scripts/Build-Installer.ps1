@@ -101,3 +101,12 @@ if ($LASTEXITCODE -ne 0) { throw "ISCC 编译失败，退出码：$LASTEXITCODE"
 Write-Host "`n安装包已生成：" -ForegroundColor Green
 Write-Host "  安装程序：$setupPath（$([math]::Round((Get-Item $setupPath).Length / 1MB, 1)) MB）"
 Write-Host "  脚本版安装目录：$stageDir"
+
+$setupHash = (Get-FileHash -LiteralPath $setupPath -Algorithm SHA256).Hash
+$checksumPath = Join-Path $distRoot 'SHA256SUMS.txt'
+[IO.File]::WriteAllText(
+    $checksumPath,
+    "$setupHash  $([IO.Path]::GetFileName($setupPath))`n",
+    [Text.UTF8Encoding]::new($false)
+)
+Write-Host "  SHA-256：$checksumPath"

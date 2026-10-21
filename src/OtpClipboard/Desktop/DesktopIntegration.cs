@@ -583,7 +583,7 @@ public sealed class DesktopIntegration : IDisposable
                     case WM_ERASEBKGND: return new IntPtr(1);
                     case WM_PAINT:
                         // 淡出时状态已清空，保留最后一帧，不重绘成空白。
-                        if (_visible) PaintPopup(); else ValidateRect(hwnd, IntPtr.Zero);
+                        if (_visible) PaintPopup(); else ConsumeInvalidatedRegion(hwnd);
                         return IntPtr.Zero;
                     case WM_MOUSEMOVE:
                         if (_visible && !_hover)
@@ -681,6 +681,16 @@ public sealed class DesktopIntegration : IDisposable
             if (memory != IntPtr.Zero) DeleteDC(memory);
             if (dc != IntPtr.Zero) EndPaint(_popup, ref paint);
         }
+    }
+
+    /// <summary>
+    /// 隐藏窗口也必须通过 BeginPaint/EndPaint 清空无效区；仅调用 ValidateRect
+    /// 时，系统可能在隐藏的分层窗口上反复投递 WM_PAINT，造成消息循环空转。
+    /// </summary>
+    private static void ConsumeInvalidatedRegion(IntPtr hwnd)
+    {
+        IntPtr dc = BeginPaint(hwnd, out PAINTSTRUCT paint);
+        if (dc != IntPtr.Zero) EndPaint(hwnd, ref paint);
     }
 
     private void DrawPopup(IntPtr dc, int width, int height)

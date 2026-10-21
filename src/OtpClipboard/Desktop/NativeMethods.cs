@@ -12,7 +12,8 @@ internal static class DesktopNativeMethods
         WM_MOUSELEAVE = 0x2A3,
         WM_RBUTTONUP = 0x205, WM_CAPTURECHANGED = 0x215, WM_HOTKEY = 0x312,
         WM_DPICHANGED = 0x2E0, WM_DISPLAYCHANGE = 0x7E, WM_SETTINGCHANGE = 0x1A,
-        WM_APP_TRAY = 0x8001, NIN_SELECT = 0x400, NIN_KEYSELECT = 0x401;
+        WM_APP_TRAY = 0x8001, NIN_SELECT = 0x400, NIN_KEYSELECT = 0x401,
+        WM_QUIT = 0x0012, QS_ALLINPUT = 0x04FF, PM_REMOVE = 0x0001;
     internal const uint WS_POPUP = 0x80000000, WS_EX_TOOLWINDOW = 0x80,
         WS_EX_NOACTIVATE = 0x08000000, WS_EX_TOPMOST = 8, WS_EX_LAYERED = 0x80000, LWA_ALPHA = 2,
         SWP_NOSIZE = 1, SWP_NOZORDER = 4, SWP_NOACTIVATE = 0x10, SWP_SHOWWINDOW = 0x40, CS_DROPSHADOW = 0x20000,
@@ -107,10 +108,21 @@ internal static class DesktopNativeMethods
         internal uint MouseData, Flags, Time;
         internal UIntPtr ExtraInfo;
     }
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct MSG
+    {
+        internal IntPtr Window;
+        internal uint Message;
+        internal UIntPtr WParam;
+        internal IntPtr LParam;
+        internal uint Time;
+        internal POINT Point;
+    }
 
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode)] internal static extern IntPtr GetModuleHandle(string? name);
     [DllImport("kernel32.dll")] internal static extern uint GetCurrentThreadId();
     [DllImport("kernel32.dll")] internal static extern uint GetTickCount();
+    internal const uint Infinite = 0xFFFFFFFF;
     [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)] internal static extern ushort RegisterClassEx(ref WNDCLASSEX cls);
     [DllImport("user32.dll", CharSet = CharSet.Unicode)] internal static extern bool UnregisterClass(string name, IntPtr instance);
     [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)] internal static extern IntPtr CreateWindowEx(uint exStyle, string cls, string title, uint style, int x, int y, int width, int height, IntPtr parent, IntPtr menu, IntPtr instance, IntPtr param);
@@ -119,6 +131,13 @@ internal static class DesktopNativeMethods
     [DllImport("user32.dll", CharSet = CharSet.Unicode)] internal static extern uint RegisterWindowMessage(string message);
     [DllImport("user32.dll")] internal static extern bool ChangeWindowMessageFilterEx(IntPtr hwnd, uint message, uint action, IntPtr filter);
     [DllImport("user32.dll")] internal static extern bool PostMessage(IntPtr hwnd, uint msg, UIntPtr wp, IntPtr lp);
+    [DllImport("user32.dll")] internal static extern int GetMessage(out MSG message, IntPtr hwnd, uint min, uint max);
+    [DllImport("user32.dll")] internal static extern bool PeekMessage(out MSG message, IntPtr hwnd, uint min, uint max, uint remove);
+    [DllImport("user32.dll")] internal static extern bool TranslateMessage(ref MSG message);
+    [DllImport("user32.dll")] internal static extern IntPtr DispatchMessage(ref MSG message);
+    [DllImport("user32.dll")] internal static extern uint MsgWaitForMultipleObjects(
+        uint count, IntPtr[] handles, bool waitAll, uint milliseconds, uint wakeMask);
+    [DllImport("user32.dll")] internal static extern void PostQuitMessage(int exitCode);
     [DllImport("user32.dll")] internal static extern bool IsWindow(IntPtr hwnd);
     [DllImport("user32.dll")] internal static extern IntPtr GetForegroundWindow();
     [DllImport("user32.dll")] internal static extern uint GetWindowThreadProcessId(IntPtr hwnd, out uint processId);

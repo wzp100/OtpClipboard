@@ -7,6 +7,7 @@
     <a href="https://github.com/wzp100/OtpClipboard/actions/workflows/ci.yml"><img src="https://github.com/wzp100/OtpClipboard/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
     <img src="https://img.shields.io/badge/Windows-10%201809%2B-0078D4?logo=windows" alt="Windows 10 1809 或更高版本" />
     <img src="https://img.shields.io/badge/.NET-8-512BD4?logo=dotnet" alt=".NET 8" />
+    <img src="https://img.shields.io/badge/Release-v1.0.5-22A06B" alt="最新版本 v1.0.5" />
     <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-22A06B" alt="MIT 许可证" /></a>
   </p>
   <p><a href="#快速上手">快速上手</a> · <a href="#隐私与数据">隐私说明</a> · <a href="docs/development.md">开发指南</a> · <a href="docs/promotion/xiaohongshu.md">宣传素材</a></p>
@@ -27,7 +28,7 @@
 | 光标旁提示 | 显示 8 秒，点击填入；特殊输入框可手动粘贴 |
 | 常驻托盘 | 收起窗口后继续监听，按 **Ctrl + Alt + O** 唤回 |
 | 开机自启 | 可选择登录 Windows 后自动后台运行 |
-| 处理记录 | 查看已复制、未匹配、已过滤或失败的状态；重启后只恢复状态与时间 |
+| 处理记录 | 查看已复制、未匹配、已过滤或失败；磁盘只保存状态与时间 |
 
 > 示例验证码统一使用虚构的 `246810`，宣传插画不是实际软件截图。
 
@@ -36,18 +37,31 @@
 <p align="center"><img src="docs/media/xiaohongshu-cover.png" width="440" alt="手机收到验证码，电脑直接 Ctrl + V 的宣传插画" /></p>
 </details>
 
+## v1.0.5 更新
+
+这一版集中处理“小工具不该让人有负担”的两件事：
+
+- **界面不再空白。** 主界面通过本机管道读取后台快照，重新打开和后台状态刷新都使用同一份数据。
+- **后台不再忙等。** 修复隐藏浮窗持续重绘，也补上原生窗口消息分发。开发版在 24 逻辑处理器电脑上完成 30 秒空闲采样，平均 CPU 为 `0.00%`，私有内存约 16 MiB。这个结果仅用于本次回归验证。
+- **关闭界面不等于退出。** UI 进程关闭后立即退出，释放 WinUI 占用；后台仍负责通知监听、剪贴板与托盘，需要界面时再按需启动。
+- **隐私实现与界面说明一致。** 验证码和通知正文只存在于当前运行进程内存；历史文件只保存处理分类和时间。
+
 ## 工作流程
 
 ```mermaid
 flowchart LR
     A[手机收到短信] --> B[微软手机连接]
     B --> C[Windows 通知中心]
-    C --> D[来源筛选与验证码识别]
-    D --> E[本机剪贴板]
-    E --> F[Ctrl + V 或点击浮窗]
+    C --> D[常驻后台进程]
+    D --> E[来源筛选与验证码识别]
+    E --> F[本机剪贴板]
+    F --> G[Ctrl + V 或点击浮窗]
+    D -. 按需启动 .-> H[WinUI 主界面]
 ```
 
 应用通过系统通知事件工作，不定时扫描。手动“扫描通知中心”可用于排查已有通知。
+
+后台进程只创建原生消息窗口，不需要常驻 WinUI 页面。点击托盘、打开应用或按 **Ctrl + Alt + O** 时再启动界面进程；关闭界面不会停止监听。
 
 ## 快速上手
 
@@ -59,9 +73,13 @@ flowchart LR
 
 ### 2. 安装或从源码运行
 
-下载 [v1.0.4 Windows x64 安装程序](https://github.com/wzp100/OtpClipboard/releases/download/v1.0.4/OtpClipboard-1.0.4.0-Setup.exe)，或前往 [Releases](https://github.com/wzp100/OtpClipboard/releases) 查看更新日志和 SHA-256 校验文件。其他架构请参考源码与打包说明。
+下载 [v1.0.5 Windows x64 安装程序](https://github.com/wzp100/OtpClipboard/releases/download/v1.0.5/OtpClipboard-1.0.5.0-Setup.exe)，或前往 [Releases](https://github.com/wzp100/OtpClipboard/releases) 查看更新日志和 SHA-256 校验文件。其他架构请参考源码与打包说明。
+
+安装后可先点击“设置 → 预览悬浮提示”，用虚构值 `246810` 检查提示效果。预览不会复制验证码。
 
 安装包名称为 `OtpClipboard-<版本>-Setup.exe`。当前打包方案采用自签名证书，安装时需管理员权限导入到“本地计算机 → 受信任人”。Windows 可能显示未知发布者提示；请先核实来源。详细步骤见 [打包与安装说明](docs/packaging.md)。
+
+如果 Release 标签页只显示标题或一直空白，可直接使用上面的安装包链接，并尝试刷新页面、更换网络或在 GitHub 页面链接末尾加 `?`。GitHub 前端偶尔会遇到 CDN 或缓存加载异常，具体资源链接不依赖该页面渲染。
 
 ### 3. 授权并开始使用
 
@@ -85,6 +103,8 @@ flowchart LR
 本地文件位于 `%LOCALAPPDATA%\Packages\<包系列名>\LocalState\`：`preferences.json` 保存设置，`notification-history.json` 保存状态和时间。点击“清空记录”会清空内存与该历史文件。
 
 Windows 通知权限属于系统级授权。默认按“手机连接”的包身份过滤其他来源；关闭来源筛选后会检查其他应用通知。退出应用会停止监听，但不会自动清除当前剪贴板。第三方剪贴板工具仍可能读取当前内容。
+
+应用使用按当前用户隔离的本机命名管道传递状态，消息长度上限为 256 KiB，不包含联网通道。
 
 仓库排除本机截图、日志、用户设置、历史记录、签名私钥和环境文件。安全问题处理方式见 [SECURITY.md](SECURITY.md)。
 
@@ -133,8 +153,10 @@ powershell -ExecutionPolicy Bypass -File .\scripts\Restart-Dev.ps1
 src/
   OtpClipboard.Core/           # 识别、来源判定、历史脱敏；无 WinUI 依赖
   OtpClipboard/
+    Api/                      # 后台快照、控制命令与本机命名管道
+    Background*.cs            # 常驻消息泵与 STA 任务调度
     Views/                    # 页面与窗口，历史展示逻辑单独拆分
-    Services/                 # 剪贴板、持久化、手机连接、开机自启
+    Services/                 # 通知监听、剪贴板、持久化、手机连接、开机自启
     Desktop/                  # 托盘、快捷键、浮窗与 Win32 接口
 tests/                       # xUnit 回归测试
 scripts/                     # 构建、调试与发布前隐私检查

@@ -9,6 +9,8 @@ $OutputEncoding = [Console]::OutputEncoding
 $projectRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\src\OtpClipboard'))
 $projectFile = Join-Path $projectRoot 'OtpClipboard.csproj'
 $buildDirectory = [System.IO.Path]::GetFullPath((Join-Path $projectRoot 'bin')) + [System.IO.Path]::DirectorySeparatorChar
+$layoutRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\.local\development-layout'))
+$layoutDirectory = $layoutRoot + [System.IO.Path]::DirectorySeparatorChar
 
 if (-not (Test-Path -LiteralPath $projectFile)) {
     throw "找不到项目文件：$projectFile"
@@ -20,7 +22,9 @@ Get-Process -Name 'OtpClipboard' -ErrorAction SilentlyContinue | ForEach-Object 
     $appProcess = $_
     try {
         $exePath = $appProcess.Path
-        if ($exePath -and $exePath.StartsWith($buildDirectory, [System.StringComparison]::OrdinalIgnoreCase)) {
+        if ($exePath -and (
+                $exePath.StartsWith($buildDirectory, [System.StringComparison]::OrdinalIgnoreCase) -or
+                $exePath.StartsWith($layoutDirectory, [System.StringComparison]::OrdinalIgnoreCase))) {
             Write-Host "关闭旧开发实例：PID $($appProcess.Id)"
             Stop-Process -Id $appProcess.Id
             $stoppedIds += $appProcess.Id
@@ -36,7 +40,10 @@ Get-Process -Name 'OtpClipboard' -ErrorAction SilentlyContinue | ForEach-Object 
 $otherInstances = Get-Process -Name 'OtpClipboard' -ErrorAction SilentlyContinue | Where-Object {
     if ($stoppedIds -contains $_.Id) { return $false }
     try {
-        -not $_.Path -or -not $_.Path.StartsWith($buildDirectory, [System.StringComparison]::OrdinalIgnoreCase)
+        -not $_.Path -or (
+            -not $_.Path.StartsWith($buildDirectory, [System.StringComparison]::OrdinalIgnoreCase) -and
+            -not $_.Path.StartsWith($layoutDirectory, [System.StringComparison]::OrdinalIgnoreCase)
+        )
     }
     catch { $true }
 }
@@ -45,9 +52,9 @@ if ($otherInstances) {
 }
 
 Write-Host '增量构建打包式 Debug 版本…'
-dotnet build $projectFile -c Debug -p:Platform=x64
-if ($LASTEXITCODE -ne 0) {
-    throw "构建失败，dotnet 退出码：$LASTEXITCODE"
+& (Join-Path $PSScriptRoot 'Prepare-DevLayout.ps1') -Configuration Debug
+if (-not $layoutRoot -or -not (Test-Path -LiteralPath (Join-Path $layoutRoot 'OtpClipboard.exe'))) {
+    throw '开发构建布局准备失败。'
 }
 
 Write-Host '启动开发实例…'
@@ -56,8 +63,22 @@ $launchLogDirectory = Join-Path ([System.IO.Path]::GetFullPath((Join-Path $PSScr
 New-Item -ItemType Directory -Force -Path $launchLogDirectory | Out-Null
 $launchLog = Join-Path $launchLogDirectory ('launch-' + $startedAt.ToString('yyyyMMdd-HHmmss') + '.log')
 $launchErrorLog = $launchLog + '.error.log'
-$runner = Start-Process -FilePath (Get-Command dotnet).Source `
-    -ArgumentList @('run', '--project', ('"' + $projectFile + '"'), '-c', 'Debug', '-p:Platform=x64', '--no-build', '--no-restore') `
+$processArchitecture = if ([Environment]::Is64BitProcess) { 'x64' } else { 'x86' }
+$nugetPackages = $env:NUGET_PACKAGES
+if (-not $nugetPackages) {
+    $nugetPackages = Join-Path ([Environment]::GetFolderPath('UserProfile')) '.nuget\packages'
+}
+$winappRoot = Join-Path $nugetPackages 'microsoft.windows.sdk.buildtools.winapp\0.7.0\tools'
+$winapp = Join-Path (Join-Path $winappRoot ('win-' + $processArchitecture)) 'winapp.exe'
+if (-not (Test-Path -LiteralPath $winapp)) {
+    throw "找不到当前架构的开发启动器：$winapp"
+}
+$runner = Start-Process -FilePath $winapp `
+    -ArgumentList @(
+        'run', ('"' + $layoutRoot + '"'),
+        '--manifest', ('"' + (Join-Path $layoutRoot 'AppxManifest.xml') + '"'),
+        '--detach'
+    ) `
     -WorkingDirectory $projectRoot -WindowStyle Hidden -PassThru `
     -RedirectStandardOutput $launchLog -RedirectStandardError $launchErrorLog
 
@@ -66,21 +87,34 @@ while ((Get-Date) -lt $deadline) {
     $instance = Get-Process -Name 'OtpClipboard' -ErrorAction SilentlyContinue | Where-Object {
         try {
             $_.StartTime -ge $startedAt -and $_.Path -and
-                $_.Path.StartsWith($buildDirectory, [System.StringComparison]::OrdinalIgnoreCase) -and
-                $_.MainWindowHandle -ne [IntPtr]::Zero
+                ($_.Path.StartsWith($buildDirectory, [System.StringComparison]::OrdinalIgnoreCase) -or
+                 $_.Path.StartsWith($layoutDirectory, [System.StringComparison]::OrdinalIgnoreCase))
         }
         catch { $false }
     } | Select-Object -First 1
 
     if ($instance) {
-        # A briefly visible window is not enough: startup exceptions can close it moments later.
         Start-Sleep -Seconds 2
         $instance.Refresh()
-        if ($instance.HasExited -or $instance.MainWindowHandle -eq [IntPtr]::Zero) {
-            throw "应用窗口出现后立即退出：PID $($instance.Id)"
+        if ($instance.HasExited) {
+            throw "后台进程启动后立即退出：PID $($instance.Id)"
         }
-        Write-Host "开发实例已启动：PID $($instance.Id)"
-        return
+        Write-Host "开发后台已启动：PID $($instance.Id)"
+        $launcher = Join-Path $layoutRoot 'OtpClipboard.exe'
+        $uiProcess = Start-Process -FilePath $launcher -ArgumentList '--ui' -PassThru
+        $windowDeadline = (Get-Date).AddSeconds(15)
+        while ((Get-Date) -lt $windowDeadline) {
+            $uiProcess.Refresh()
+            if ($uiProcess.HasExited) {
+                throw "UI 进程启动后立即退出：PID $($uiProcess.Id)"
+            }
+            if ($uiProcess.MainWindowHandle -ne [IntPtr]::Zero) {
+                Write-Host "开发界面已启动：PID $($uiProcess.Id)"
+                return
+            }
+            Start-Sleep -Milliseconds 250
+        }
+        throw "后台已启动，但 15 秒内没有检测到开发界面：PID $($uiProcess.Id)"
     }
 
     $runner.Refresh()
@@ -89,6 +123,10 @@ while ((Get-Date) -lt $deadline) {
             Get-Content -LiteralPath $launchLog -Encoding utf8 -Tail 20
             Get-Content -LiteralPath $launchErrorLog -Encoding utf8 -Tail 20
         ) -join "`n"
+        if ($diagnostics -match ' launched \(PID:') {
+            Start-Sleep -Milliseconds 500
+            continue
+        }
         throw "启动器提前退出，退出码：$($runner.ExitCode)`n$diagnostics`n完整日志：$launchLog"
     }
     Start-Sleep -Milliseconds 250
