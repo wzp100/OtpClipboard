@@ -10,7 +10,7 @@
     <img src="https://img.shields.io/badge/Release-v1.0.7-22A06B" alt="最新版本 v1.0.7" />
     <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-22A06B" alt="MIT 许可证" /></a>
   </p>
-  <p><a href="#快速上手">快速上手</a> · <a href="#隐私与数据">隐私说明</a> · <a href="docs/development.md">开发指南</a> · <a href="docs/promotion/xiaohongshu.md">宣传素材</a></p>
+  <p><a href="#快速上手">快速上手</a> · <a href="#隐私与数据">隐私说明</a> · <a href="docs/development.md">开发指南</a> · <a href="CONTRIBUTING.md">参与贡献</a></p>
 </div>
 
 ---
@@ -30,12 +30,7 @@
 | 开机自启 | 可选择登录 Windows 后自动后台运行 |
 | 处理记录 | 查看已复制、未匹配、已过滤或失败；磁盘只保存状态与时间 |
 
-> 示例验证码统一使用虚构的 `246810`，宣传插画不是实际软件截图。
-
-<details>
-<summary>查看宣传配图（虚构演示）</summary>
-<p align="center"><img src="docs/media/xiaohongshu-cover.png" width="440" alt="手机收到验证码，电脑直接 Ctrl + V 的宣传插画" /></p>
-</details>
+> 文档中的验证码均为虚构示例。
 
 ## v1.0.7 更新
 
@@ -162,7 +157,7 @@ src/
 tests/                       # xUnit 回归测试
 scripts/                     # 构建、调试与发布前隐私检查
 packaging/                   # MSIX 安装与签名脚本（不含私钥）
-docs/                        # 架构、开发、打包与宣传素材
+docs/                        # 架构、开发、打包与隐私说明
 ```
 
 欢迎提交 Issue 或 Pull Request。请阅读 [贡献指南](CONTRIBUTING.md)、[架构说明](docs/architecture.md)、[更新日志](CHANGELOG.md)。提交截图和复现材料前，请移除真实短信、验证码、账号和手机号。

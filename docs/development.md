@@ -131,7 +131,7 @@ python scripts\generate-icons.py
 
 运行 `powershell -ExecutionPolicy Bypass -File .\scripts\Check-Privacy.ps1`，检查 Git 候选文件中是否包含常见凭据、个人绝对路径或本机数据文件。检查只报告文件名，不打印匹配内容。它是基础规则检查，不能代替人工审阅图片、任意格式的密钥或 Git 历史。
 
-历史文件的隐私边界由 `OtpClipboard.Core/HistoryArchive.cs` 统一控制：只允许处理分类和固定格式时间。涉及持久化的修改必须保持旧格式脱敏回归测试通过。发布素材统一放入 `docs/media/`，本机原始截图放在已忽略的 `output/`；禁止把真实通知和验证码放入宣传图。
+历史文件的隐私边界由 `OtpClipboard.Core/HistoryArchive.cs` 统一控制：只允许处理分类和固定格式时间。涉及持久化的修改必须保持旧格式脱敏回归测试通过。用于 Issue 或 Pull Request 的截图必须先移除真实通知、验证码和个人信息；本机原始截图放在已忽略的 `output/`。
 
 ### 开发包与已安装版身份冲突
 

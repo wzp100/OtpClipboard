@@ -71,7 +71,7 @@ Generated\ Files/
 .env
 .env.*
 
-# 本机截图可能含短信、验证码和桌面隐私；只提交审核过的 docs/media 素材。
+# 本机截图可能含短信、验证码和桌面隐私，不提交原始截图。
 /output/
 /.local/
 notification-history.json
