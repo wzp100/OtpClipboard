@@ -84,6 +84,7 @@ internal sealed class BackgroundController : IDisposable
             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(executable)
             {
                 UseShellExecute = false,
+                WorkingDirectory = AppContext.BaseDirectory,
                 ArgumentList = { "--ui" },
             });
             return true;
