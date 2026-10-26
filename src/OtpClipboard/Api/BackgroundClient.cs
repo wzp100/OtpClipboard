@@ -54,16 +54,19 @@ internal sealed class BackgroundClient
         catch { return null; }
     }
 
-    public bool IsAvailable()
+    public Task WaitForBackgroundExitAsync(CancellationToken cancellationToken)
     {
-        try
-        {
-            using var pipe = new NamedPipeClientStream(
-                ".", BridgeNames.Pipe, PipeDirection.Out);
-            pipe.Connect(250);
-            return true;
-        }
-        catch { return false; }
+        return Task.Factory.StartNew(
+            () =>
+            {
+                using var backgroundMutex = Mutex.OpenExisting(BridgeNames.Mutex);
+                int signaled = WaitHandle.WaitAny(
+                    [backgroundMutex, cancellationToken.WaitHandle]);
+                if (signaled == 1) cancellationToken.ThrowIfCancellationRequested();
+            },
+            cancellationToken,
+            TaskCreationOptions.LongRunning,
+            TaskScheduler.Default);
     }
 
     private Task<SnapshotResponse> SendAsync(string command) =>

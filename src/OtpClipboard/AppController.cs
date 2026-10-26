@@ -170,16 +170,23 @@ public sealed class AppController : IDisposable
 
     public void StartBackgroundWatch()
     {
-        _backgroundWatchTask ??= Task.Run(async () =>
+        _backgroundWatchTask ??= WatchBackgroundAsync();
+    }
+
+    private async Task WatchBackgroundAsync()
+    {
+        try
         {
-            while (!_backgroundWatch.IsCancellationRequested)
-            {
-                await Task.Delay(TimeSpan.FromSeconds(1), _backgroundWatch.Token);
-                if (_client.IsAvailable()) continue;
-                _dispatcher.TryEnqueue(() => Application.Current.Exit());
-                return;
-            }
-        });
+            await _client.WaitForBackgroundExitAsync(_backgroundWatch.Token);
+            _dispatcher.TryEnqueue(() => Application.Current.Exit());
+        }
+        catch (OperationCanceledException) when (_backgroundWatch.IsCancellationRequested)
+        {
+        }
+        catch
+        {
+            _dispatcher.TryEnqueue(() => Application.Current.Exit());
+        }
     }
 
     public void Dispose()
