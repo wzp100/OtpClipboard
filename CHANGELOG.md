@@ -2,6 +2,14 @@
 
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本号遵循 `Package.appxmanifest` 中的四段式版本。
 
+## [1.0.7] - 2026-10-26
+
+### 修复
+
+- 主窗口改用 Windows 原生标题栏，移除 `ExtendsContentIntoTitleBar` 与自定义 WinUI `TitleBar`，修复拖动窗口时的明显掉帧。
+- 正式安装包本机 30 次窗口移动测试平均 5.59 ms，最大 11.4 ms；所有样本低于 16 ms。该数据来自本机，不构成其他设备上的性能承诺。
+- 保留 v1.0.6 的后台存活检测修复：UI 阻塞等待后台互斥量，仅在后台退出时唤醒，不再每秒连接命名管道。
+
 ## [1.0.6] - 2026-10-26
 
 ### 修复

@@ -7,7 +7,7 @@
     <a href="https://github.com/wzp100/OtpClipboard/actions/workflows/ci.yml"><img src="https://github.com/wzp100/OtpClipboard/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
     <img src="https://img.shields.io/badge/Windows-10%201809%2B-0078D4?logo=windows" alt="Windows 10 1809 或更高版本" />
     <img src="https://img.shields.io/badge/.NET-8-512BD4?logo=dotnet" alt=".NET 8" />
-    <img src="https://img.shields.io/badge/Release-v1.0.6-22A06B" alt="最新版本 v1.0.6" />
+    <img src="https://img.shields.io/badge/Release-v1.0.7-22A06B" alt="最新版本 v1.0.7" />
     <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-22A06B" alt="MIT 许可证" /></a>
   </p>
   <p><a href="#快速上手">快速上手</a> · <a href="#隐私与数据">隐私说明</a> · <a href="docs/development.md">开发指南</a> · <a href="docs/promotion/xiaohongshu.md">宣传素材</a></p>
@@ -37,15 +37,15 @@
 <p align="center"><img src="docs/media/xiaohongshu-cover.png" width="440" alt="手机收到验证码，电脑直接 Ctrl + V 的宣传插画" /></p>
 </details>
 
-## v1.0.6 更新
+## v1.0.7 更新
 
-这一版修复窗口拖动时的周期性卡顿：
+这一版继续处理窗口拖动卡顿，并移除了此前仍会触发明显掉帧的自定义标题栏：
 
-- **取消每秒探测后台的命名管道连接。** UI 原先每秒新建一次管道检查存活，会周期性唤醒线程，拖动窗口时表现为轻微一顿一顿。现在改为阻塞等待后台互斥量，仅在后台真正退出时唤醒 UI。
-- **保留后台退出联动。** 后台结束后，界面进程仍会立即关闭，不留下孤立窗口。
-- **本机回归结果。** 修复后 UI 空闲 15 秒平均 CPU 约 `0.04%`，后台约 `0.00%`；这些是本机测量值，不承诺所有设备和通知负载下一致。
+- **改用 Windows 原生标题栏。** 移除 `ExtendsContentIntoTitleBar` 与 WinUI 自定义 `TitleBar`，避免拖动时重复参与布局、重绘与合成。窗口标题、图标和 Mica 背景仍然保留。
+- **保留 v1.0.6 的后台存活检测修复。** UI 改为阻塞等待后台互斥量，仅在后台退出时唤醒，不再每秒创建命名管道。
+- **本机回归结果。** 正式安装包 30 次窗口移动测试平均 `5.59 ms`，最大 `11.4 ms`，所有样本低于 16 ms。数据来自本机，不承诺所有显示设备下一致。
 
-v1.0.5 的主界面空白、隐藏浮窗重绘和后台消息循环修复继续保留。详见 [v1.0.6 发布说明](docs/releases/v1.0.6.md)。
+v1.0.5 的主界面空白、隐藏浮窗重绘和后台消息循环修复继续保留。详见 [v1.0.7 发布说明](docs/releases/v1.0.7.md)。
 
 ## 工作流程
 
@@ -74,7 +74,7 @@ flowchart LR
 
 ### 2. 安装或从源码运行
 
-下载 [v1.0.6 Windows x64 安装程序](https://github.com/wzp100/OtpClipboard/releases/download/v1.0.6/OtpClipboard-1.0.6.0-Setup.exe)，或前往 [Releases](https://github.com/wzp100/OtpClipboard/releases) 查看更新日志和 SHA-256 校验文件。其他架构请参考源码与打包说明。
+下载 [v1.0.7 Windows x64 安装程序](https://github.com/wzp100/OtpClipboard/releases/download/v1.0.7/OtpClipboard-1.0.7.0-Setup.exe)，或前往 [Releases](https://github.com/wzp100/OtpClipboard/releases) 查看更新日志和 SHA-256 校验文件。其他架构请参考源码与打包说明。
 
 安装后可先点击“设置 → 预览悬浮提示”，用虚构值 `246810` 检查提示效果。预览不会复制验证码。
 
